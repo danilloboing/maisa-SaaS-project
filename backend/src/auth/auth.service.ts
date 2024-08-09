@@ -1,12 +1,18 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { UsersService } from 'src/users/users.service';
+import { User } from 'src/entities/user.entity';
+import { SignUpDto } from './dto/sign-up.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
-import { SignUpDto } from './dto/sign-up.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
@@ -51,5 +57,52 @@ export class AuthService {
       user: user,
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async validateToken(token: string): Promise<any> {
+    try {
+      const decoded = await this.jwtService.verify(token);
+      if (!decoded.sub) {
+        throw new Error('Invalid token');
+      }
+
+      const issuedAt = decoded.iat;
+      const currentTime = Math.floor(Date.now() / 1000);
+      const twelveHoursInSeconds = 12 * 60 * 60;
+
+      if (currentTime - issuedAt > twelveHoursInSeconds) {
+        throw new Error('Token expired');
+      }
+
+      const user = await this.usersRepository.findOne({
+        where: { id_user: decoded.sub },
+      });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+      return {
+        status: true,
+        success: true,
+        user: this.formatUserData(user),
+      };
+    } catch (e) {
+      return e;
+    }
+  }
+
+  private formatUserData(user: User) {
+    return {
+      id: user.id_user,
+      email: user.email,
+      name: user.name,
+    };
+  }
+
+  async findOne(id: number): Promise<User> {
+    return this.usersRepository.findOne({
+      where: { id_user: id },
+      select: ['id_user', 'name', 'email'],
+    });
   }
 }

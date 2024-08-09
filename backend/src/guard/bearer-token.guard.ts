@@ -4,46 +4,39 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { HttpService } from '@nestjs/axios';
-import { AuthService } from 'src/auth/auth.service';
+import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class BearerTokenGuard implements CanActivate {
   constructor(
-    private httpService: HttpService,
     private authService: AuthService,
+    private jwtService: JwtService,
   ) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const authHeader = request.headers.authorization;
+    const token = this.extractTokenFromHeader(request);
 
-    if (!authHeader) {
-      throw new UnauthorizedException('Authorization header is missing');
-    }
-
-    const token = authHeader.split(' ')[1];
     if (!token) {
-      throw new UnauthorizedException('Bearer token is missing');
+      throw new UnauthorizedException();
     }
 
-    return this.validateToken(token, request);
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET,
+      });
+      request['user'] = payload;
+    } catch {
+      throw new UnauthorizedException();
+    }
+    return true;
   }
 
   private async validateToken(token: string, request: any): Promise<boolean> {
     try {
-      const validationUrl = process.env.BILLOR_GATE_URL;
-      const response = await this.httpService
-        .post(
-          validationUrl,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } },
-        )
-        .toPromise();
+      const response = await this.authService.validateToken(token);
       if (response.data.result.user) {
         request.user = response.data.result.user;
         return true;
@@ -51,5 +44,10 @@ export class BearerTokenGuard implements CanActivate {
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }
+  }
+
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }
