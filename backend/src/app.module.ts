@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     FinanceModule,
     AuthModule,
     UsersModule,
+    HttpModule,
   ],
   controllers: [],
   providers: [

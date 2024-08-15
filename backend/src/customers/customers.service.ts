@@ -1,26 +1,72 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Customer } from 'src/entities/customer.entity';
+import { celularRegex } from 'src/utils/regex-celular';
 
 @Injectable()
 export class CustomersService {
-  create(createCustomerDto: CreateCustomerDto) {
-    return 'This action adds a new customer';
+  constructor(
+    @InjectRepository(Customer)
+    private customerRepository: Repository<Customer>,
+  ) {}
+  async create(createCustomerDto: CreateCustomerDto) {
+    const customerIsExist = await this.customerRepository.findOne({
+      where: { email: createCustomerDto.email },
+    });
+
+    if (customerIsExist) {
+      throw new BadRequestException('Este E-mail já está em uso');
+    }
+
+    if (!celularRegex.test(createCustomerDto.celular)) {
+      throw new BadRequestException('Número de celular inválido');
+    }
+
+    const customer = this.customerRepository.create(createCustomerDto);
+    return await this.customerRepository.save(customer);
   }
 
   findAll() {
-    return `This action returns all customers`;
+    const customers = this.customerRepository.find();
+    return customers;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} customer`;
+  async findOne(id: number) {
+    const customer = await this.customerRepository.findOne({
+      where: { id_cliente: id },
+    });
+
+    if (!customer) {
+      throw new BadRequestException('Cliente não encontrado');
+    }
+
+    return customer;
   }
 
-  update(id: number, updateCustomerDto: UpdateCustomerDto) {
-    return `This action updates a #${id} customer`;
+  async update(updateCustomerDto: UpdateCustomerDto) {
+    const customer = await this.customerRepository.findOne({
+      where: { id_cliente: updateCustomerDto.id_cliente },
+    });
+
+    if (!customer) {
+      throw new BadRequestException('Cliente não encontrado');
+    }
+
+    return await this.customerRepository.save(updateCustomerDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} customer`;
+  async remove(id: number) {
+    const customer = await this.customerRepository.findOne({
+      where: { id_cliente: id },
+    });
+
+    if (!customer) {
+      throw new BadRequestException('Cliente não encontrado');
+    }
+
+    return await this.customerRepository.delete({ id_cliente: id });
   }
 }
