@@ -19,6 +19,9 @@ export class Service {
   descricao_servico: string;
 
   @Column()
+  preco: number;
+
+  @Column()
   categoria_servico: number;
 
   @ManyToOne(
@@ -26,5 +29,5 @@ export class Service {
     (serviceCategory) => serviceCategory.id_categoria,
   )
   @JoinColumn({ name: 'categoria_servico' })
-  categoria_servico_servico: ServiceCategory;
+  categoria: ServiceCategory;
 }

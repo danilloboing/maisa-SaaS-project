@@ -1,9 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
+import { BearerTokenGuard } from 'src/guard/bearer-token.guard';
 
 @Controller('services')
+@UseGuards(BearerTokenGuard)
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 
