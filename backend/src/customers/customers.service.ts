@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateCustomerDto } from './dto/create-customer.dto';
-import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
+import { CreateCustomerDto } from './dto/create-customer.dto';
+import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { Customer } from 'src/entities/customer.entity';
 import { celularRegex } from 'src/utils/regex-celular';
 
@@ -46,16 +47,24 @@ export class CustomersService {
     return customer;
   }
 
-  async update(updateCustomerDto: UpdateCustomerDto) {
+  async update(id: number, updateCustomerDto: UpdateCustomerDto) {
     const customer = await this.customerRepository.findOne({
-      where: { id_cliente: updateCustomerDto.id_cliente },
+      where: { id_cliente: id },
     });
 
     if (!customer) {
       throw new BadRequestException('Cliente não encontrado');
     }
 
-    return await this.customerRepository.save(updateCustomerDto);
+    const updatedCustomer = await this.customerRepository
+      .update(id, updateCustomerDto)
+      .then(() => {
+        return this.customerRepository.findOne({
+          where: { id_cliente: id },
+        });
+      });
+
+    return updatedCustomer;
   }
 
   async remove(id: number) {
@@ -67,6 +76,11 @@ export class CustomersService {
       throw new BadRequestException('Cliente não encontrado');
     }
 
-    return await this.customerRepository.delete({ id_cliente: id });
+    await this.customerRepository.delete({ id_cliente: id });
+
+    return {
+      message: 'Cliente removido com sucesso',
+      success: true,
+    };
   }
 }

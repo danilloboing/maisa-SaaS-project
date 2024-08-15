@@ -35,8 +35,11 @@ export class CustomersController {
   }
 
   @Patch(':id')
-  update(@Body() updateCustomerDto: UpdateCustomerDto) {
-    return this.customersService.update(updateCustomerDto);
+  update(
+    @Param('id') id: number,
+    @Body() updateCustomerDto: UpdateCustomerDto,
+  ) {
+    return this.customersService.update(id, updateCustomerDto);
   }
 
   @Delete(':id')
