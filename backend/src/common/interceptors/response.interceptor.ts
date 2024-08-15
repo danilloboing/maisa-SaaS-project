@@ -8,61 +8,54 @@ import {
 } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+  constructor(private readonly httpService: HttpService) {}
+
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const ctx = context.switchToHttp();
+    const request = ctx.getRequest();
+
     return next.handle().pipe(
-      map((res: unknown) => this.responseHandler(res, context)),
-      catchError((err: HttpException) =>
-        throwError(() => this.errorHandler(err, context)),
-      ),
+      map((res) => ({
+        status: true,
+        path: request.url,
+        statusCode: 200,
+        result: res,
+      })),
+      catchError((err) => {
+        this.handleException(err, context);
+        return throwError(() => err);
+      }),
     );
   }
 
-  errorHandler(exception: HttpException, context: ExecutionContext) {
+  private async handleException(exception: any, context: ExecutionContext) {
     const ctx = context.switchToHttp();
-    const response = ctx.getResponse();
     const request = ctx.getRequest();
-
-    if (response.headersSent) {
-      return;
-    }
 
     const status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    response.status(status).json({
-      status: false,
-      statusCode: status,
-      path: request.url,
-      message: exception.message || null,
-      result: exception,
-    });
-  }
+    const errorMessage = exception.message || 'Unknown error';
+    //const errorResponse = exception.getResponse ? exception.getResponse() : {};
 
-  responseHandler(res: any, context: ExecutionContext) {
-    const ctx = context.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
+    if (
+      status === HttpStatus.INTERNAL_SERVER_ERROR ||
+      status === HttpStatus.BAD_REQUEST
+    ) {
+      const response = {
+        status: false,
+        path: request.url,
+        message: errorMessage,
+        //response: errorResponse,
+      };
 
-    if (response.headersSent) {
-      return res;
+      return response;
     }
-
-    const statusCode = response.statusCode;
-
-    if (res.status !== undefined && res.path !== undefined) {
-      return res;
-    }
-
-    return {
-      status: true,
-      path: request.url,
-      statusCode,
-      result: res,
-    };
   }
 }
