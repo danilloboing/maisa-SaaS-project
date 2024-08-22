@@ -3,31 +3,37 @@ import {
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
+
 import { ServiceCategory } from './service_category.entity';
+import { Agenda } from './agenda.entity';
 
 @Entity({ name: 'servicos' })
 export class Service {
   @PrimaryGeneratedColumn()
-  id_servico: number;
+  id: number;
 
   @Column()
-  nome_servico: string;
+  nome: string;
 
   @Column()
-  descricao_servico: string;
+  descricao: string;
 
   @Column()
   preco: number;
 
-  @Column()
-  categoria_servico: number;
-
   @ManyToOne(
     () => ServiceCategory,
-    (serviceCategory) => serviceCategory.id_categoria,
+    (serviceCategory) => serviceCategory.servicos,
   )
   @JoinColumn({ name: 'categoria_servico' })
   categoria: ServiceCategory;
+
+  @Column()
+  is_active: boolean;
+
+  @OneToMany(() => Agenda, (agenda) => agenda.servico)
+  agendas: Agenda[];
 }

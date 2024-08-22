@@ -10,6 +10,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { HttpModule } from '@nestjs/axios';
+import { AgendaModule } from './agenda/agenda.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { HttpModule } from '@nestjs/axios';
     AuthModule,
     UsersModule,
     HttpModule,
+    AgendaModule,
+    PaymentsModule,
   ],
   controllers: [],
   providers: [
