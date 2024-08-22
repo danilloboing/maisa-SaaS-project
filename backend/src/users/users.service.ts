@@ -22,9 +22,9 @@ export class UsersService {
 
   public formatUserData(user: User) {
     return {
-      id: user.id_user,
+      id: user.id,
       email: user.email,
-      name: user.name,
+      nome: user.nome,
     };
   }
 }

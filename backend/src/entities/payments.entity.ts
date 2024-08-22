@@ -1,22 +1,16 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
-import { Service } from './service.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
+import { Agenda } from './agenda.entity';
 
 @Entity({ name: 'pagamentos' })
 export class Payment {
   @PrimaryGeneratedColumn()
-  id_pagamento: number;
+  id: number;
 
   @Column()
-  data_pagamento: Date;
+  data_pagamento: string;
 
   @Column()
-  valor_servico: number;
+  valor: number;
 
   @Column()
   percent_desconto: number;
@@ -28,12 +22,8 @@ export class Payment {
   valor_total: number;
 
   @Column()
-  status_pagamento: string;
+  status: string;
 
-  @Column()
-  servico: number;
-
-  @ManyToOne(() => Service, (service) => service.id_servico)
-  @JoinColumn({ name: 'servico' })
-  servico_pagamento: Service;
+  @OneToOne(() => Agenda, (agenda) => agenda.pagamento)
+  agenda: Agenda;
 }

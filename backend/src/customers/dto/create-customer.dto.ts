@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, IsEmail } from 'class-validator';
 export class CreateCustomerDto {
   @IsString()
   @IsNotEmpty()
-  nome_cliente: string;
+  nome: string;
 
   @IsEmail()
   @IsNotEmpty()
@@ -11,7 +11,7 @@ export class CreateCustomerDto {
 
   @IsString()
   @IsNotEmpty()
-  endereco_cliente: string;
+  endereco: string;
 
   @IsString()
   @IsNotEmpty()

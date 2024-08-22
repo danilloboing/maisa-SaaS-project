@@ -1,22 +1,23 @@
-import { StatusAgenda } from 'src/enums/status-agenda.enum';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToOne,
-  OneToMany,
   JoinColumn,
+  ManyToOne,
+  OneToOne,
 } from 'typeorm';
+
 import { Customer } from './customer.entity';
 import { Payment } from './payments.entity';
+import { Service } from './service.entity';
 
 @Entity({ name: 'agendamentos' })
 export class Agenda {
   @PrimaryGeneratedColumn()
-  id_agendamento: number;
+  id: number;
 
-  @Column()
-  data: Date;
+  @Column({ type: 'date' })
+  data: string;
 
   @Column()
   horario_inicio: string;
@@ -25,24 +26,29 @@ export class Agenda {
   horario_fim: string;
 
   @Column()
-  observacao_atendimento: string;
+  observacao: string;
 
   @Column()
-  servico: number;
+  status: string;
 
   @Column()
-  cliente: number;
-
-  @OneToOne(() => Customer, (customer) => customer.id_cliente)
-  cliente_agendamento: Customer;
+  id_servico: number;
 
   @Column()
-  status_agendamento: StatusAgenda;
+  id_cliente: number;
 
   @Column()
-  pagamento: number;
+  id_pagamento: number;
 
-  @OneToMany(() => Payment, (payment) => payment.id_pagamento)
-  @JoinColumn({ name: 'pagamento' })
-  pagamento_agendamento: Payment;
+  @ManyToOne(() => Service, (service) => service.agendas)
+  @JoinColumn({ name: 'id_servico' })
+  servico: Service;
+
+  @ManyToOne(() => Customer, (cliente) => cliente.agendas)
+  @JoinColumn({ name: 'id_cliente' })
+  cliente: Customer;
+
+  @OneToOne(() => Payment, (pagamento) => pagamento.agenda)
+  @JoinColumn({ name: 'id_pagamento' })
+  pagamento: Payment;
 }

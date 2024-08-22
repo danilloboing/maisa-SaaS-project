@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   UseGuards,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
@@ -40,10 +39,5 @@ export class CustomersController {
     @Body() updateCustomerDto: UpdateCustomerDto,
   ) {
     return this.customersService.update(id, updateCustomerDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.customersService.remove(+id);
   }
 }

@@ -28,8 +28,8 @@ export class ServicesService {
 
   async findOne(id: number) {
     const service = await this.serviceRepository.findOne({
-      where: { id_servico: id },
-      relations: ['categoria_servico'],
+      where: { id: id },
+      relations: ['categoria'],
     });
 
     if (!service) {
@@ -41,7 +41,7 @@ export class ServicesService {
 
   async update(id: number, updateServiceDto: UpdateServiceDto) {
     const service = await this.serviceRepository.findOne({
-      where: { id_servico: id },
+      where: { id: id },
     });
 
     if (!service) {
@@ -51,19 +51,9 @@ export class ServicesService {
     const updatedService = await this.serviceRepository
       .update(id, updateServiceDto)
       .then(() => {
-        return this.serviceRepository.findOne({ where: { id_servico: id } });
+        return this.serviceRepository.findOne({ where: { id: id } });
       });
 
     return updatedService;
-  }
-
-  remove(id: number) {
-    const service = this.serviceRepository.delete(id);
-
-    if (!service) {
-      throw new Error('Serviço não encontrado');
-    }
-
-    return { message: 'Serviço removido com sucesso', success: true };
   }
 }

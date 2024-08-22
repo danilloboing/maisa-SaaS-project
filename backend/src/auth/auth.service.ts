@@ -48,8 +48,8 @@ export class AuthService {
 
   async login(user: any) {
     const payload = {
-      id: user.id_user,
-      name: user.name,
+      id: user.id,
+      nome: user.nome,
       email: user.email,
     };
     return {
@@ -75,7 +75,7 @@ export class AuthService {
       }
 
       const user = await this.usersRepository.findOne({
-        where: { id_user: decoded.sub },
+        where: { id: decoded.sub },
       });
 
       if (!user) {
@@ -93,16 +93,16 @@ export class AuthService {
 
   private formatUserData(user: User) {
     return {
-      id: user.id_user,
+      id: user.id,
       email: user.email,
-      name: user.name,
+      nome: user.nome,
     };
   }
 
   async findOne(id: number): Promise<User> {
     return this.usersRepository.findOne({
-      where: { id_user: id },
-      select: ['id_user', 'name', 'email'],
+      where: { id: id },
+      select: ['id', 'nome', 'email'],
     });
   }
 }

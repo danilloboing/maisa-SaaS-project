@@ -3,11 +3,11 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 export class CreateServiceDto {
   @IsString()
   @IsNotEmpty()
-  nome_servico: string;
+  nome: string;
 
   @IsString()
   @IsNotEmpty()
-  descricao_servico: string;
+  descricao: string;
 
   @IsNumber()
   @IsNotEmpty()

@@ -37,7 +37,7 @@ export class CustomersService {
 
   async findOne(id: number) {
     const customer = await this.customerRepository.findOne({
-      where: { id_cliente: id },
+      where: { id: id },
     });
 
     if (!customer) {
@@ -49,7 +49,7 @@ export class CustomersService {
 
   async update(id: number, updateCustomerDto: UpdateCustomerDto) {
     const customer = await this.customerRepository.findOne({
-      where: { id_cliente: id },
+      where: { id: id },
     });
 
     if (!customer) {
@@ -60,27 +60,10 @@ export class CustomersService {
       .update(id, updateCustomerDto)
       .then(() => {
         return this.customerRepository.findOne({
-          where: { id_cliente: id },
+          where: { id: id },
         });
       });
 
     return updatedCustomer;
-  }
-
-  async remove(id: number) {
-    const customer = await this.customerRepository.findOne({
-      where: { id_cliente: id },
-    });
-
-    if (!customer) {
-      throw new BadRequestException('Cliente não encontrado');
-    }
-
-    await this.customerRepository.delete({ id_cliente: id });
-
-    return {
-      message: 'Cliente removido com sucesso',
-      success: true,
-    };
   }
 }
