@@ -12,6 +12,8 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 import { HttpModule } from '@nestjs/axios';
 import { AgendaModule } from './agenda/agenda.module';
 import { PaymentsModule } from './payments/payments.module';
+import { ReportsModule } from './reports/reports.module';
+import { SheetsService } from './sheets/sheets.service';
 
 @Module({
   imports: [
@@ -42,6 +44,7 @@ import { PaymentsModule } from './payments/payments.module';
     HttpModule,
     AgendaModule,
     PaymentsModule,
+    ReportsModule,
   ],
   controllers: [],
   providers: [
@@ -49,6 +52,7 @@ import { PaymentsModule } from './payments/payments.module';
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
     },
+    SheetsService,
   ],
 })
 export class AppModule {}
