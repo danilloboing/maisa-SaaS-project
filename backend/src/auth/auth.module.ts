@@ -11,18 +11,17 @@ import { JwtStrategy } from './strategy/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { BearerTokenGuard } from 'src/guard/bearer-token.guard';
-import { SessionSerializer } from './session/session.serializer';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, BearerTokenGuard, SessionSerializer],
+  providers: [AuthService, JwtStrategy, BearerTokenGuard],
   imports: [
     TypeOrmModule.forFeature([User]),
     UsersModule,
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: new Date().getTime() + 12 * 60 * 60 * 1000 },
+        signOptions: { expiresIn: '1h' },
       }),
       inject: [ConfigService],
     }),

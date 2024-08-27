@@ -59,45 +59,45 @@ export class AuthService {
     };
   }
 
-  async validateToken(token: string): Promise<any> {
-    try {
-      const decoded = await this.jwtService.verify(token);
-      if (!decoded.sub) {
-        throw new Error('Invalid token');
-      }
+  // async validateToken(token: string): Promise<any> {
+  //   try {
+  //     const decoded = await this.jwtService.verify(token);
+  //     if (!decoded.sub) {
+  //       throw new Error('Invalid token');
+  //     }
 
-      const issuedAt = decoded.iat;
-      const currentTime = Math.floor(Date.now() / 1000);
-      const twelveHoursInSeconds = 12 * 60 * 60;
+  //     const issuedAt = decoded.iat;
+  //     const currentTime = Math.floor(Date.now() / 1000);
+  //     const twelveHoursInSeconds = 12 * 60 * 60;
 
-      if (currentTime - issuedAt > twelveHoursInSeconds) {
-        throw new Error('Token expired');
-      }
+  //     if (currentTime - issuedAt > twelveHoursInSeconds) {
+  //       throw new Error('Token expired');
+  //     }
 
-      const user = await this.usersRepository.findOne({
-        where: { id: decoded.sub },
-      });
+  //     const user = await this.usersRepository.findOne({
+  //       where: { id: decoded.sub },
+  //     });
 
-      if (!user) {
-        throw new Error('User not found');
-      }
-      return {
-        status: true,
-        success: true,
-        user: this.formatUserData(user),
-      };
-    } catch (e) {
-      return e;
-    }
-  }
+  //     if (!user) {
+  //       throw new Error('User not found');
+  //     }
+  //     return {
+  //       status: true,
+  //       success: true,
+  //       user: this.formatUserData(user),
+  //     };
+  //   } catch (e) {
+  //     return e;
+  //   }
+  // }
 
-  private formatUserData(user: User) {
-    return {
-      id: user.id,
-      email: user.email,
-      nome: user.nome,
-    };
-  }
+  // private formatUserData(user: User) {
+  //   return {
+  //     id: user.id,
+  //     email: user.email,
+  //     nome: user.nome,
+  //   };
+  // }
 
   async findOne(id: number): Promise<User> {
     return this.usersRepository.findOne({

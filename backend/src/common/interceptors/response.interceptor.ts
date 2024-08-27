@@ -6,7 +6,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { HttpService } from '@nestjs/axios';
 
@@ -26,8 +26,8 @@ export class ResponseInterceptor implements NestInterceptor {
         result: res,
       })),
       catchError((err) => {
-        this.handleException(err, context);
-        return throwError(() => err);
+        const res = this.handleException(err, context);
+        return res;
       }),
     );
   }
@@ -42,7 +42,7 @@ export class ResponseInterceptor implements NestInterceptor {
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
     const errorMessage = exception.message || 'Unknown error';
-    //const errorResponse = exception.getResponse ? exception.getResponse() : {};
+    const errorResponse = exception.getResponse ? exception.getResponse() : {};
 
     if (
       status === HttpStatus.INTERNAL_SERVER_ERROR ||
@@ -52,7 +52,7 @@ export class ResponseInterceptor implements NestInterceptor {
         status: false,
         path: request.url,
         message: errorMessage,
-        //response: errorResponse,
+        response: errorResponse,
       };
 
       return response;

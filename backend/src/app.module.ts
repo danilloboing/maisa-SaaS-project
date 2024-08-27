@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { CustomersModule } from './customers/customers.module';
 import { ServicesModule } from './services/services.module';
 import { FinanceModule } from './finance/finance.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -20,13 +20,7 @@ import { SheetsService } from './sheets/sheets.service';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    JwtModule.registerAsync({
-      useFactory: async (configService: ConfigService) => ({
-        secretOrPrivateKey: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '60s' },
-      }),
-      inject: [ConfigService],
-    }),
+    JwtModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,

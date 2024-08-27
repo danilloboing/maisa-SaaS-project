@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 
 import { CreatePaymentDto } from 'src/payments/dto/create-payment.dto';
-import { StatusAgenda } from 'src/enums/status-agenda.enum';
+import { StatusAgenda } from 'src/common/enums/status-agenda.enum';
 
 export class CreateAgendaDto extends CreatePaymentDto {
   @IsString()
