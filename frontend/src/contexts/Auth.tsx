@@ -1,11 +1,9 @@
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 
 import { AuthContextValues, LoginData, UserInfo } from '@/types/auth';
-import { loginQuerie, removeUserInfos } from '@/queries/auth';
+import { getInfoUser, loginQuerie, removeUserInfos } from '@/queries/auth';
 import { ContextProps } from '@/types/context';
 import { useToast } from '@/hooks';
-import { useNavigate } from 'react-router-dom';
-import { PATH_HOME } from '@/constants/private-routes';
 
 export const AuthContext = createContext<AuthContextValues | null>(null);
 
@@ -34,7 +32,12 @@ export function AuthContextProvider({ children }: ContextProps) {
 
     if (success) {
       localStorage.setItem('token', access_token);
-      setUserDataFn(user);
+      setUserDataFn({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        token: access_token,
+      });
       setIsAuthenticated(true);
       setLoggedInUser(true);
       successToast('Login realizado com sucesso');
@@ -52,6 +55,21 @@ export function AuthContextProvider({ children }: ContextProps) {
       return error;
     }
   }
+
+  useEffect(() => {
+    async function getUserStorage() {
+      const infoUser = await getInfoUser();
+      if (infoUser) {
+        setUserInfo(infoUser);
+        setLoggedInUser(true);
+        setIsAuthenticated(true);
+      } else {
+        setLoggedInUser(false);
+        setIsAuthenticated(false);
+      }
+    }
+    getUserStorage();
+  }, []);
 
   return (
     <AuthContext.Provider

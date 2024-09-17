@@ -1,31 +1,19 @@
-import { PATH_HOME } from '@/constants/private-routes';
-import { PATH_LOGIN } from '@/constants/public-routes';
-import { useAuth } from '@/hooks';
-import { Home } from '@/pages/Home';
-import { Login } from '@/pages/Login';
-import {
-  Navigate,
-  Route,
-  BrowserRouter as Router,
-  Routes,
-} from 'react-router-dom';
+import { useAPIError, useAuth } from '@/hooks';
+
+import { PrivateRoutes } from './private.routes';
+import { PublicRoutes } from './public.routes';
+import { useEffect } from 'react';
 
 export function ProjectRoutes() {
-  const { isAuthenticated, loggedInUser } = useAuth();
-  console.log(isAuthenticated, loggedInUser);
+  const { loggedInUser } = useAuth();
 
-  return (
-    <Router>
-      <Routes>
-        {loggedInUser ? (
-          <Route path={PATH_HOME} element={<Home />} />
-        ) : (
-          <>
-            <Route path={PATH_LOGIN} element={<Login />} />
-            <Route path='*' element={<Navigate to={PATH_LOGIN} />} />
-          </>
-        )}
-      </Routes>
-    </Router>
-  );
+  const { addError, error } = useAPIError();
+
+  useEffect(() => {
+    if (error) {
+      addError(error);
+    }
+  }, [error, addError]);
+
+  return loggedInUser ? <PrivateRoutes /> : <PublicRoutes />;
 }
