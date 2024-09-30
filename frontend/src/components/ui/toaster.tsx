@@ -1,4 +1,4 @@
-import { useToastRadix } from "@/hooks/use-toast"
+import { useToastRadix } from "@/hooks/useToast"
 import {
   Toast,
   ToastClose,
