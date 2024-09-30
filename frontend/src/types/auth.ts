@@ -1,5 +1,3 @@
-
-
 export type AuthContextValues = {
     userInfo: UserInfo | null;
     isLoading: boolean;

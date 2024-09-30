@@ -20,6 +20,7 @@ export function AuthContextProvider({ children }: ContextProps) {
       setIsAuthenticated(false);
       setLoggedInUser(null);
       setUserInfo(null);
+      window.location.href = '/';
     } catch (error) {
       errorToast('Erro ao fazer logout');
     }

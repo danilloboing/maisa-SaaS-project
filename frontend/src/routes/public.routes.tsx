@@ -14,7 +14,6 @@ export function PublicRoutes() {
       <Router>
         <Routes>
           <Route path={PATH_LOGIN} element={<Login />} />
-          <Route path='*' element={<Navigate to={PATH_LOGIN} />} />
         </Routes>
       </Router>
     </>
