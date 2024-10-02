@@ -15,7 +15,12 @@ export class ServicesService {
 
   async create(createServiceDto: CreateServiceDto) {
     const service = this.serviceRepository.create(createServiceDto);
-    return await this.serviceRepository.save(service);
+    console.log(service);
+    try {
+      return await this.serviceRepository.save(service);
+    } catch (error) {
+      throw new Error('Erro ao criar serviço');
+    }
   }
 
   async findAll() {

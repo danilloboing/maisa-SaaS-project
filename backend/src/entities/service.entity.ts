@@ -24,6 +24,9 @@ export class Service {
   @Column()
   preco: number;
 
+  @Column({ name: 'categoria_servico' })
+  categoriaServico: number;
+
   @ManyToOne(
     () => ServiceCategory,
     (serviceCategory) => serviceCategory.servicos,

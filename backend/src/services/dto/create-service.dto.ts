@@ -15,5 +15,5 @@ export class CreateServiceDto {
 
   @IsNumber()
   @IsNotEmpty()
-  categoria_servico: number;
+  categoriaServico: number;
 }
