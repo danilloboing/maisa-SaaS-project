@@ -26,6 +26,7 @@ export class ServicesService {
   async findAll() {
     const services = await this.serviceRepository.find({
       relations: ['categoria'],
+      where: { is_active: true },
     });
 
     return services;
