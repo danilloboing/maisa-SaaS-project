@@ -24,7 +24,7 @@ export function Login() {
   } = useForm({
     resolver: yupResolver(loginSchema),
   });
-  const { successToast, errorToast } = useToast();
+  const { errorToast } = useToast();
   const { onLoginHandler } = useAuth();
 
   async function handleLoginSubmit(data: LoginData) {
