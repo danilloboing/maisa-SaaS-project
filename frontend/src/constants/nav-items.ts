@@ -1,4 +1,4 @@
-import { PATH_HOME } from "./private-routes";
+import { PATH_HOME, PATH_SERVICES } from "./private-routes";
 
 export const navItems = [
     {
@@ -7,7 +7,7 @@ export const navItems = [
       },
       {
         name: 'Serviços',
-        link: '#',
+        link: PATH_SERVICES,
       },
       {
         name: 'Clientes',

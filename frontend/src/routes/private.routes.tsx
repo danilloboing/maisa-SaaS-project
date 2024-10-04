@@ -7,8 +7,8 @@ import { Card } from '@/components/ui/card';
 import { Home } from '@/pages/Home';
 import { useMediaQuery } from '@/hooks';
 import { Services } from '@/pages/Services';
-import PagesProvider from '@/contexts/Pages';
-import { ServicesContextProvider } from '@/contexts/Services';
+import PagesProvider from '@/contexts/PagesContext';
+import { ServicesContextProvider } from '@/contexts/ServicesContext';
 
 export function PrivateRoutes() {
   const isMobile = useMediaQuery('(max-width: 768px)');
