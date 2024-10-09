@@ -14,13 +14,7 @@ export class CustomersService {
     private customerRepository: Repository<Customer>,
   ) {}
   async create(createCustomerDto: CreateCustomerDto) {
-    const customerIsExist = await this.customerRepository.findOne({
-      where: { email: createCustomerDto.email },
-    });
-
-    if (customerIsExist) {
-      throw new BadRequestException('Este E-mail já está em uso');
-    }
+    await this.checkIfHasActiveCustomer(createCustomerDto.email);
 
     if (!celularRegex.test(createCustomerDto.celular)) {
       throw new BadRequestException('Número de celular inválido');
@@ -48,6 +42,10 @@ export class CustomersService {
   }
 
   async update(id: number, updateCustomerDto: UpdateCustomerDto) {
+    if (updateCustomerDto.email) {
+      await this.checkIfHasActiveCustomer(updateCustomerDto.email);
+    }
+
     const customer = await this.customerRepository.findOne({
       where: { id: id },
     });
@@ -65,5 +63,15 @@ export class CustomersService {
       });
 
     return updatedCustomer;
+  }
+
+  private async checkIfHasActiveCustomer(email: string) {
+    const customer = await this.customerRepository.findOne({
+      where: { email: email, is_active: true },
+    });
+
+    if (customer) {
+      throw new BadRequestException('Este E-mail já está em uso');
+    }
   }
 }
