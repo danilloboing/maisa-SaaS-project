@@ -25,7 +25,9 @@ export class CustomersService {
   }
 
   findAll() {
-    const customers = this.customerRepository.find();
+    const customers = this.customerRepository.find({
+      where: { is_active: true },
+    });
     return customers;
   }
 
@@ -42,6 +44,7 @@ export class CustomersService {
   }
 
   async update(id: number, updateCustomerDto: UpdateCustomerDto) {
+    console.log(updateCustomerDto);
     if (updateCustomerDto.email) {
       await this.checkIfHasActiveCustomer(updateCustomerDto.email);
     }
