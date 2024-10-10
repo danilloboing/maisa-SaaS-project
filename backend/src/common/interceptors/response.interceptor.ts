@@ -20,7 +20,7 @@ export class ResponseInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       map((res) => ({
-        status: true,
+        success: true,
         path: request.url,
         statusCode: 200,
         result: res,
@@ -46,7 +46,7 @@ export class ResponseInterceptor implements NestInterceptor {
 
     return new HttpException(
       {
-        status: false,
+        success: false,
         path: request.url,
         message: errorMessage,
         response: errorResponse,
