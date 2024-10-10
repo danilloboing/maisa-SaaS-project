@@ -54,15 +54,12 @@ export function Services() {
   });
 
   function onSaveHandler(data: yup.Asserts<typeof servicesSchema>) {
-    console.log(id);
-    console.log(data);
-
     if (id) {
       updateService({ ...data, id });
-      return onCloseHandler();
+    } else {
+      createService(data);
     }
-
-    createService(data);
+    
     return onCloseHandler();
   }
 

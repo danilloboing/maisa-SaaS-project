@@ -1,6 +1,6 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
-import { PATH_HOME, PATH_SERVICES } from '@/constants/private-routes';
+import { PATH_CUSTOMERS, PATH_HOME, PATH_SERVICES } from '@/constants/private-routes';
 import { PrivateRoute } from './private-route';
 import { Footer, Header, Sidebar } from '@/components';
 import { Card } from '@/components/ui/card';
@@ -9,6 +9,8 @@ import { useMediaQuery } from '@/hooks';
 import { Services } from '@/pages/Services';
 import PagesProvider from '@/contexts/PagesContext';
 import { ServicesContextProvider } from '@/contexts/ServicesContext';
+import { Customers } from '@/pages/Customers';
+import { CustomersContextProvider } from '@/contexts/CustomersContext';
 
 export function PrivateRoutes() {
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -30,6 +32,14 @@ export function PrivateRoutes() {
           </PrivateRoute>
         }
       />
+      <Route 
+        path={PATH_CUSTOMERS}
+        element={
+          <PrivateRoute>
+            <Customers />
+          </PrivateRoute>
+        }
+      />
     </>
   );
 
@@ -40,7 +50,9 @@ export function PrivateRoutes() {
         <Card className='m-5 p-4 flex-1 flex-grow'>
           <PagesProvider>
             <ServicesContextProvider>
-              <Routes>{routes}</Routes>
+              <CustomersContextProvider>
+                <Routes>{routes}</Routes>
+              </CustomersContextProvider>
             </ServicesContextProvider>
           </PagesProvider>
         </Card>

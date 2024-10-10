@@ -32,7 +32,7 @@ api.interceptors.response.use(
   (error) => {
     if (
       (error.response && error.response.status === 403) ||
-      (error.response && error.response.result.sucess === false)
+      (error.response && error.response.success === false)
     ) {
       removeUserInfos();
       window.location.href = PATH_LOGIN;
