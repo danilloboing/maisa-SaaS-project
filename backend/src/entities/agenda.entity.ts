@@ -51,4 +51,7 @@ export class Agenda {
   @OneToOne(() => Payment, (pagamento) => pagamento.agenda)
   @JoinColumn({ name: 'id_pagamento' })
   pagamento: Payment;
+
+  @Column()
+  is_deleted: boolean;
 }

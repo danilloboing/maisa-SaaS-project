@@ -1,6 +1,11 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
-import { PATH_CUSTOMERS, PATH_HOME, PATH_SERVICES } from '@/constants/private-routes';
+import {
+  PATH_CUSTOMERS,
+  PATH_HOME,
+  PATH_SCHEDULE,
+  PATH_SERVICES,
+} from '@/constants/private-routes';
 import { PrivateRoute } from './private-route';
 import { Footer, Header, Sidebar } from '@/components';
 import { Card } from '@/components/ui/card';
@@ -11,6 +16,8 @@ import PagesProvider from '@/contexts/PagesContext';
 import { ServicesContextProvider } from '@/contexts/ServicesContext';
 import { Customers } from '@/pages/Customers';
 import { CustomersContextProvider } from '@/contexts/CustomersContext';
+import { AgendaContextProvider } from '@/contexts/AgendaContext';
+import Agenda from '@/pages/Agenda';
 
 export function PrivateRoutes() {
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -32,11 +39,19 @@ export function PrivateRoutes() {
           </PrivateRoute>
         }
       />
-      <Route 
+      <Route
         path={PATH_CUSTOMERS}
         element={
           <PrivateRoute>
             <Customers />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={PATH_SCHEDULE}
+        element={
+          <PrivateRoute>
+            <Agenda />
           </PrivateRoute>
         }
       />
@@ -49,11 +64,13 @@ export function PrivateRoutes() {
         {isMobile ? <Sidebar /> : <Header />}
         <Card className='m-5 p-4 flex-1 flex-grow'>
           <PagesProvider>
-            <ServicesContextProvider>
-              <CustomersContextProvider>
-                <Routes>{routes}</Routes>
-              </CustomersContextProvider>
-            </ServicesContextProvider>
+            <AgendaContextProvider>
+              <ServicesContextProvider>
+                <CustomersContextProvider>
+                  <Routes>{routes}</Routes>
+                </CustomersContextProvider>
+              </ServicesContextProvider>
+            </AgendaContextProvider>
           </PagesProvider>
         </Card>
         <Footer />

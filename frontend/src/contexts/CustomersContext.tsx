@@ -2,7 +2,6 @@ import { useToast } from '@/hooks';
 import {
   createCustomerQuerie,
   getCustomersQuerie,
-  inactiveCustomerQuerie,
   updateCustomerQuerie,
 } from '@/queries/customers';
 import { ContextProps } from '@/types/context';

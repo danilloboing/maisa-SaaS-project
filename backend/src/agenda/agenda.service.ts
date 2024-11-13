@@ -8,6 +8,7 @@ import { CustomersService } from 'src/customers/customers.service';
 import { UpdateAgendaDto } from './dto/update-agenda.dto';
 import { CreateAgendaDto } from './dto/create-agenda.dto';
 import { Agenda } from 'src/entities/agenda.entity';
+import * as moment from 'moment';
 
 @Injectable()
 export class AgendaService {
@@ -21,6 +22,7 @@ export class AgendaService {
   ) {}
 
   async create(createAgendaDto: CreateAgendaDto) {
+    createAgendaDto.data_pagamento = moment().format('YYYY-MM-DD');
     const servico = await this.servicesService.findOne(
       createAgendaDto.id_servico,
     );
@@ -65,6 +67,7 @@ export class AgendaService {
   async findAll() {
     const agenda = await this.agendaRepository.find({
       relations: ['servico', 'cliente', 'pagamento'],
+      where: { is_deleted: false },
     });
 
     return agenda;

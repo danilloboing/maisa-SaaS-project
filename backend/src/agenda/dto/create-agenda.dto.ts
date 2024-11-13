@@ -6,11 +6,9 @@ import {
   IsString,
   Matches,
 } from 'class-validator';
-
-import { CreatePaymentDto } from 'src/payments/dto/create-payment.dto';
 import { StatusAgenda } from 'src/common/enums/status-agenda.enum';
 
-export class CreateAgendaDto extends CreatePaymentDto {
+export class CreateAgendaDto {
   @IsString()
   @Matches(/^\d{4}\/\d{2}\/\d{2}$/, {
     message: 'A data deve ser no formato YYYY/MM/DD',
@@ -47,4 +45,15 @@ export class CreateAgendaDto extends CreatePaymentDto {
   @IsEnum(StatusAgenda, { message: 'Status inválido' })
   @IsNotEmpty()
   status: string;
+
+  @IsString()
+  data_pagamento: string;
+
+  @IsNumber()
+  @IsOptional()
+  valor: number;
+
+  @IsNumber()
+  @IsOptional()
+  percent_desconto?: number;
 }

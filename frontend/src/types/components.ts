@@ -14,3 +14,8 @@ export type CurrencyInputProps = {
     defaultValue?: string;
     
 };
+
+export type SelectProps = {
+    id: string;
+    name: string;
+}

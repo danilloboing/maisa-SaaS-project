@@ -8,3 +8,18 @@ export const selectCategoria = [
         name: 'Pacote'
     }
 ];
+
+export const selectAgendaStatus = [
+    {
+        id: 'Agendado',
+        name: 'Agendado'
+    },
+    {
+        id: 'Cancelado',
+        name: 'Cancelado'
+    },
+    {
+        id: 'Realizado',
+        name: 'Realizado'
+    }
+];

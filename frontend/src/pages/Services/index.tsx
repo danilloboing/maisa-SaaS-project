@@ -181,7 +181,7 @@ export function Services() {
                           </SelectTrigger>
                           <SelectContent>
                             {selectCategoria.map((item) => (
-                              <SelectItem key={item.id} value={item.id}>
+                               <SelectItem key={item.id} value={item.id}>
                                 {item.name}
                               </SelectItem>
                             ))}

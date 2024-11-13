@@ -5,3 +5,4 @@ export { useMediaQuery } from "./useMediaQuery";
 export { useDisclosure } from "./useDisclosure";
 export { useServices } from "./useServices";
 export { useCustomers } from "./useCustomers";
+export { useAgenda } from "./useAgenda";
