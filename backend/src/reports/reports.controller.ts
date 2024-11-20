@@ -11,31 +11,62 @@ import { BearerTokenGuard } from 'src/guard/bearer-token.guard';
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
-  @Get('agenda')
-  async getAgendaReport(@Res() res: Response, @Body() dto: AgendaReportDto) {
-    const file = await this.reportsService.getAgendaReport(dto);
+  @Get('agenda-xlsx')
+  async getAgendaReportXlsx(
+    @Res() res: Response,
+    @Body() dto: AgendaReportDto,
+  ) {
+    const file = await this.reportsService.getAgendaReportXlsx(dto);
 
     res.download(`${file}`);
   }
 
-  @Get('balance')
-  async getBalanceReport(@Res() res: Response, @Body() dto: BalanceReportDto) {
-    const file = await this.reportsService.getBalanceReport(dto);
+  @Get('balance-xlsx')
+  async getBalanceReportXlsx(
+    @Res() res: Response,
+    @Body() dto: BalanceReportDto,
+  ) {
+    const file = await this.reportsService.getBalanceReportXlsx(dto);
 
     res.download(`${file}`);
   }
 
-  @Get('customers')
-  async getCustomersReport(@Res() res: Response) {
-    const file = await this.reportsService.getCustomersReport();
+  @Get('customers-xlsx')
+  async getCustomersReportXlsx(@Res() res: Response) {
+    const file = await this.reportsService.getCustomersReportXlsx();
+
+    res.download(`${file}`);
+  }
+
+  @Get('services-xlsx')
+  async getServicesReportXlsx(@Res() res: Response) {
+    const file = await this.reportsService.getServicesReportXlsx();
 
     res.download(`${file}`);
   }
 
   @Get('services')
-  async getServicesReport(@Res() res: Response) {
-    const file = await this.reportsService.getServicesReport();
+  async getServicesReport() {
+    return this.reportsService.getDoneServicesReport();
+  }
 
-    res.download(`${file}`);
+  @Get('services-by-category')
+  async getServicesByCategoryReport() {
+    return this.reportsService.getServicesByCategoryReport();
+  }
+
+  @Get('revenue')
+  async getRevenueReport() {
+    return this.reportsService.getRevenueReport();
+  }
+
+  @Get('revenue-by-month')
+  async getMonthlyRevenueReport() {
+    return this.reportsService.getMonthlyRevenueReport();
+  }
+
+  @Get('services-by-status')
+  async getServicesByStatusReport() {
+    return this.reportsService.getServicesByStatusReport();
   }
 }

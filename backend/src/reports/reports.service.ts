@@ -27,7 +27,7 @@ export class ReportsService {
     private readonly sheetsService: SheetsService,
   ) {}
 
-  async getAgendaReport(dto: AgendaReportDto) {
+  async getAgendaReportXlsx(dto: AgendaReportDto) {
     const allData = [];
 
     const columns = [
@@ -101,7 +101,7 @@ export class ReportsService {
     }
   }
 
-  async getBalanceReport(dto: BalanceReportDto) {
+  async getBalanceReportXlsx(dto: BalanceReportDto) {
     const allData = [];
 
     const columns = [
@@ -174,7 +174,7 @@ export class ReportsService {
     }
   }
 
-  async getCustomersReport() {
+  async getCustomersReportXlsx() {
     const allData = [];
 
     const columns = [
@@ -216,7 +216,7 @@ export class ReportsService {
     }
   }
 
-  async getServicesReport() {
+  async getServicesReportXlsx() {
     const allData = [];
 
     const columns = [
@@ -261,6 +261,189 @@ export class ReportsService {
       return await this.sheetsService.generateSheet(columns, allData);
     } catch (error) {
       throw new Error('Erro ao gerar o relatório de serviços');
+    }
+  }
+
+  async getDoneServicesReport() {
+    try {
+      // Primeiro, vamos buscar o range de datas (primeiro e último serviço)
+      const dateRange = await this.agendaRepository
+        .createQueryBuilder('agenda')
+        .select([
+          'MIN(agenda.data) as firstDate',
+          'MAX(agenda.data) as lastDate',
+        ])
+        .where('agenda.status = :status', { status: 'Realizado' })
+        .getRawOne();
+
+      console.log(dateRange);
+      if (!dateRange.firstDate || !dateRange.lastDate) {
+        return [];
+      }
+
+      const currentDate = new Date();
+      const endDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 1,
+        0,
+      );
+
+      const results = await this.agendaRepository
+        .createQueryBuilder('agenda')
+        .select([
+          'DATE_FORMAT(agenda.data, "%Y-%m") as yearMonth',
+          'COUNT(*) as total',
+          'MAX(DATE_FORMAT(agenda.data, "%M %Y")) as monthYear',
+        ])
+        .where('agenda.status = :status', { status: 'Realizado' })
+        .andWhere('agenda.data BETWEEN :startDate AND :endDate', {
+          startDate: dateRange.firstDate,
+          endDate,
+        })
+        .groupBy('yearMonth')
+        .orderBy('yearMonth', 'ASC')
+        .getRawMany();
+
+      const formattedResults = this.fillMissingMonths(
+        results,
+        new Date(dateRange.firstDate),
+        endDate,
+      );
+
+      return formattedResults;
+    } catch (error) {
+      throw new Error(
+        'Erro ao buscar os serviços realizados: ' + error.message,
+      );
+    }
+  }
+
+  private fillMissingMonths(
+    results: any[],
+    startDate: Date,
+    endDate: Date,
+  ): any[] {
+    const months: any[] = [];
+    const current = new Date(startDate);
+    const resultsMap = new Map(results.map((item) => [item.yearMonth, item]));
+
+    while (current <= endDate) {
+      const yearMonth = current.toISOString().slice(0, 7);
+      const existingData = resultsMap.get(yearMonth);
+
+      months.push({
+        yearMonth,
+        month: current.toLocaleString('pt-BR', {
+          month: '2-digit',
+          year: 'numeric',
+        }),
+        total: existingData ? parseInt(existingData.total) : 0,
+      });
+
+      current.setMonth(current.getMonth() + 1);
+    }
+
+    return months;
+  }
+
+  async getServicesByCategoryReport() {
+    try {
+      const results = await this.agendaRepository
+        .createQueryBuilder('agenda')
+        .select([
+          'servico.nome as serviceName',
+          'categoria.nome as categoryName',
+          'COUNT(*) as total',
+        ])
+        .innerJoin('agenda.servico', 'servico')
+        .innerJoin('servico.categoria', 'categoria')
+        .where('agenda.status = :status', { status: 'Realizado' })
+        .groupBy('servico.id, categoria.id_categoria')
+        .orderBy('total', 'DESC')
+        .getRawMany();
+
+      return results.map((item) => ({
+        service: item.serviceName,
+        category: item.categoryName,
+        total: parseInt(item.total, 10),
+      }));
+    } catch (error) {
+      throw new Error(
+        'Erro ao buscar os serviços por categoria: ' + error.message,
+      );
+    }
+  }
+
+  async getRevenueReport() {
+    try {
+      // Busca os pagamentos realizados e calcula o faturamento
+      const results = await this.paymentRepository
+        .createQueryBuilder('pagamentos')
+        .select([
+          'SUM(pagamentos.valor_total) as totalRevenue', // Soma dos valores pagos
+          'COUNT(pagamentos.id) as totalTransactions', // Total de pagamentos realizados
+        ])
+        .where('pagamentos.status = :status', { status: 'pago' }) // Apenas pagamentos com status "pago"
+        .getRawOne();
+
+      // Retorna o faturamento formatado
+      return {
+        totalRevenue: parseFloat(results.totalRevenue || 0), // Total do faturamento
+        totalTransactions: parseInt(results.totalTransactions || 0, 10), // Total de transações
+      };
+    } catch (error) {
+      throw new Error('Erro ao buscar o faturamento: ' + error.message);
+    }
+  }
+
+  async getMonthlyRevenueReport() {
+    try {
+      // Busca o faturamento agrupado por mês
+      const results = await this.paymentRepository
+        .createQueryBuilder('pagamentos')
+        .select([
+          'DATE_FORMAT(pagamentos.data_pagamento, "%Y-%m") as month', // Ano e mês do pagamento
+          'SUM(pagamentos.valor_total) as totalRevenue', // Soma do valor total dos pagamentos
+          'COUNT(pagamentos.id) as totalTransactions', // Total de transações realizadas
+        ])
+        .where('pagamentos.status = :status', { status: 'pago' }) // Apenas pagamentos com status "pago"
+        .groupBy('DATE_FORMAT(pagamentos.data_pagamento, "%Y-%m")') // Agrupa por ano e mês
+        .orderBy('month', 'ASC') // Ordena os resultados por mês (crescente)
+        .getRawMany();
+
+      // Formata os resultados para o retorno desejado
+      return results.map((item) => ({
+        month: item.month,
+        totalRevenue: parseFloat(item.totalRevenue || 0),
+        totalTransactions: parseInt(item.totalTransactions || 0, 10),
+      }));
+    } catch (error) {
+      throw new Error('Erro ao buscar o faturamento por mês: ' + error.message);
+    }
+  }
+
+  async getServicesByStatusReport() {
+    try {
+      // Busca os dados agrupados por status dos serviços
+      const results = await this.agendaRepository
+        .createQueryBuilder('agenda')
+        .select([
+          'agenda.status as status', // Status do serviço
+          'COUNT(*) as total', // Contagem de serviços por status
+        ])
+        .groupBy('agenda.status') // Agrupa pelos diferentes status
+        .orderBy('total', 'DESC') // Ordena por quantidade de serviços (do maior para o menor)
+        .getRawMany();
+
+      // Formata os resultados para o formato que será usado no gráfico
+      return results.map((item) => ({
+        status: item.status,
+        total: parseInt(item.total, 10), // Quantidade de serviços por status
+      }));
+    } catch (error) {
+      throw new Error(
+        'Erro ao buscar o relatório de serviços por status: ' + error.message,
+      );
     }
   }
 }
