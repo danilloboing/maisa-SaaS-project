@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ServiceStatusData } from "@/types/components";
 
 const colors = [
   "hsl(var(--chart-1))",
