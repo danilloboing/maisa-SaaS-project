@@ -3,6 +3,7 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import {
   PATH_CUSTOMERS,
   PATH_HOME,
+  PATH_REPORTS,
   PATH_SCHEDULE,
   PATH_SERVICES,
 } from '@/constants/private-routes';
@@ -18,6 +19,7 @@ import { Customers } from '@/pages/Customers';
 import { CustomersContextProvider } from '@/contexts/CustomersContext';
 import { AgendaContextProvider } from '@/contexts/AgendaContext';
 import Agenda from '@/pages/Agenda';
+import Reports from '@/pages/Reports';
 
 export function PrivateRoutes() {
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -52,6 +54,14 @@ export function PrivateRoutes() {
         element={
           <PrivateRoute>
             <Agenda />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path={PATH_REPORTS}
+        element={
+          <PrivateRoute>
+            <Reports />
           </PrivateRoute>
         }
       />
