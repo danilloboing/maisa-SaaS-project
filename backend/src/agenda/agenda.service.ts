@@ -143,7 +143,8 @@ export class AgendaService {
         throw new Error('Pagamento não encontrado');
       }
 
-      pagamento.percent_desconto = updateAgendaDto.percent_desconto;
+      paymentObject.percent_desconto = updateAgendaDto.percent_desconto;
+      paymentObject.valor = pagamento.valor;
       await this.paymentsService.update(pagamento.id, paymentObject);
     }
 

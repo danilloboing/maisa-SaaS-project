@@ -13,7 +13,24 @@ export class PaymentsService {
     private paymentRepository: Repository<Payment>,
   ) {}
 
+  private calculateDiscount(valor: number, percentDesconto: number) {
+    const valorDesconto = (valor * percentDesconto) / 100;
+    const valorTotal = valor - valorDesconto;
+    return { valorDesconto, valorTotal };
+  }
+
   async create(createPaymentDto: CreatePaymentDto) {
+    const { percent_desconto, valor } = createPaymentDto;
+
+    if (valor !== undefined && percent_desconto !== undefined) {
+      const { valorDesconto, valorTotal } = this.calculateDiscount(
+        valor,
+        percent_desconto,
+      );
+      createPaymentDto.valor_desconto = valorDesconto;
+      createPaymentDto.valor_total = valorTotal;
+    }
+
     const payment = this.paymentRepository.create(createPaymentDto);
     return await this.paymentRepository.save(payment);
   }
@@ -43,9 +60,24 @@ export class PaymentsService {
     return payment;
   }
 
-  update(id: number, updatePaymentDto: UpdatePaymentDto) {
-    const payment = this.paymentRepository.create(updatePaymentDto);
-    payment.id = id;
-    return this.paymentRepository.save(payment);
+  async update(id: number, updatePaymentDto: UpdatePaymentDto) {
+    const { percent_desconto, valor } = updatePaymentDto;
+
+    if (valor !== undefined && percent_desconto !== undefined) {
+      const { valorDesconto, valorTotal } = this.calculateDiscount(
+        valor,
+        percent_desconto,
+      );
+      updatePaymentDto.valor_desconto = valorDesconto;
+      updatePaymentDto.valor_total = valorTotal;
+    }
+
+    const payment = this.paymentRepository.update(id, updatePaymentDto);
+
+    if (!payment) {
+      throw new Error('Pagamento não encontrado');
+    }
+
+    return payment;
   }
 }

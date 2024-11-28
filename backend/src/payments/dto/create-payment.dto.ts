@@ -14,4 +14,12 @@ export class CreatePaymentDto {
 
   @IsString()
   status: string;
+
+  @IsNumber()
+  @IsOptional()
+  valor_total?: number;
+
+  @IsNumber()
+  @IsOptional()
+  valor_desconto?: number;
 }
