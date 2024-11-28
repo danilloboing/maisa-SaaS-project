@@ -22,7 +22,6 @@ export class AgendaService {
   ) {}
 
   async create(createAgendaDto: CreateAgendaDto) {
-    createAgendaDto.data_pagamento = moment().format('YYYY-MM-DD');
     const servico = await this.servicesService.findOne(
       createAgendaDto.id_servico,
     );

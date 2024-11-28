@@ -1,6 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { format, addMonths, startOfMonth, endOfMonth } from 'date-fns';
 
 import { BalanceReportDto } from './dto/balance-report.dto';
 import { AgendaReportDto } from './dto/agenda-report.dto';
@@ -398,6 +399,34 @@ export class ReportsService {
 
   async getMonthlyRevenueReport() {
     try {
+      // Busca a data do primeiro e do último pagamento
+      const { firstDate, lastDate } = await this.paymentRepository
+        .createQueryBuilder('pagamentos')
+        .select([
+          'MIN(pagamentos.data_pagamento) as firstDate', // Data do primeiro pagamento
+          'MAX(pagamentos.data_pagamento) as lastDate', // Data do último pagamento
+        ])
+        .where('pagamentos.status = :status', { status: 'pago' }) // Apenas pagamentos com status "pago"
+        .getRawOne();
+
+      if (!firstDate || !lastDate) {
+        // Retorna um array vazio se não houver pagamentos
+        return [];
+      }
+
+      // Converte as datas para objetos Date
+      const start = startOfMonth(new Date(firstDate));
+      const end = endOfMonth(new Date(lastDate));
+
+      // Gera todos os meses no intervalo
+      const allMonths = [];
+      let current = start;
+
+      while (current <= end) {
+        allMonths.push(format(current, 'yyyy-MM'));
+        current = addMonths(current, 1);
+      }
+
       // Busca o faturamento agrupado por mês
       const results = await this.paymentRepository
         .createQueryBuilder('pagamentos')
@@ -411,12 +440,25 @@ export class ReportsService {
         .orderBy('month', 'ASC') // Ordena os resultados por mês (crescente)
         .getRawMany();
 
-      // Formata os resultados para o retorno desejado
-      return results.map((item) => ({
-        month: item.month,
-        totalRevenue: parseFloat(item.totalRevenue || 0),
-        totalTransactions: parseInt(item.totalTransactions || 0, 10),
+      // Converte os resultados para um mapa
+      const revenueMap = new Map(
+        results.map((item) => [
+          item.month,
+          {
+            totalRevenue: parseFloat(item.totalRevenue || 0),
+            totalTransactions: parseInt(item.totalTransactions || 0, 10),
+          },
+        ]),
+      );
+
+      // Monta o resultado final, preenchendo meses faltantes com zero
+      const finalResults = allMonths.map((month) => ({
+        month,
+        totalRevenue: revenueMap.get(month)?.totalRevenue || 0,
+        totalTransactions: revenueMap.get(month)?.totalTransactions || 0,
       }));
+
+      return finalResults;
     } catch (error) {
       throw new Error('Erro ao buscar o faturamento por mês: ' + error.message);
     }

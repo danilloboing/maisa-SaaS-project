@@ -34,6 +34,7 @@ export class AgendaController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAgendaDto: UpdateAgendaDto) {
+    console.log('updateAgendaDto', updateAgendaDto);
     return this.agendaService.update(+id, updateAgendaDto);
   }
 }
