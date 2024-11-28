@@ -1,6 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import * as moment from 'moment';
 
 import { ServicesService } from 'src/services/services.service';
 import { PaymentsService } from 'src/payments/payments.service';
@@ -8,7 +9,6 @@ import { CustomersService } from 'src/customers/customers.service';
 import { UpdateAgendaDto } from './dto/update-agenda.dto';
 import { CreateAgendaDto } from './dto/create-agenda.dto';
 import { Agenda } from 'src/entities/agenda.entity';
-import * as moment from 'moment';
 
 @Injectable()
 export class AgendaService {
@@ -70,7 +70,16 @@ export class AgendaService {
       where: { is_deleted: false },
     });
 
-    return agenda;
+    const result = agenda.map((item) => {
+      item.pagamento.data_pagamento = moment(
+        item.pagamento.data_pagamento,
+      ).format('YYYY-MM-DD');
+      return {
+        ...item,
+      };
+    });
+
+    return result;
   }
 
   async findOne(id: number) {
@@ -87,6 +96,38 @@ export class AgendaService {
   }
 
   async update(id: number, updateAgendaDto: UpdateAgendaDto) {
+    console.log('updateAgendaDto', updateAgendaDto);
+    const propriedadesAgenda = [
+      'id',
+      'nome',
+      'data',
+      'horario_inicio',
+      'horario_fim',
+      'status',
+      'id_servico',
+      'id_cliente',
+      'observacao',
+    ];
+
+    const propriedadesPayments = [
+      'valor',
+      'data_pagamento',
+      'metodo_pagamento',
+      'percent_desconto',
+    ];
+
+    const agendaObject = Object.fromEntries(
+      Object.entries(updateAgendaDto).filter(([key]) =>
+        propriedadesAgenda.includes(key),
+      ),
+    );
+
+    const paymentObject = Object.fromEntries(
+      Object.entries(updateAgendaDto).filter(([key]) =>
+        propriedadesPayments.includes(key),
+      ),
+    );
+
     const agenda = await this.agendaRepository.findOne({
       where: { id: id },
     });
@@ -95,8 +136,19 @@ export class AgendaService {
       throw new Error('Agenda não encontrada');
     }
 
+    if (updateAgendaDto.percent_desconto) {
+      const pagamento = await this.paymentsService.findOne(agenda.id_pagamento);
+
+      if (!pagamento) {
+        throw new Error('Pagamento não encontrado');
+      }
+
+      pagamento.percent_desconto = updateAgendaDto.percent_desconto;
+      await this.paymentsService.update(pagamento.id, paymentObject);
+    }
+
     const updatedAgenda = await this.agendaRepository
-      .update(id, updateAgendaDto)
+      .update(id, agendaObject)
       .then(() => {
         return this.agendaRepository.findOne({ where: { id: id } });
       });
