@@ -1,4 +1,5 @@
 import api from '@/services/api';
+import { Payment } from '@/types/agenda';
 
 export async function getAgendaQuerie() {
   try {
@@ -34,6 +35,15 @@ export async function inactiveAgendaQuerie(id: number) {
     return response.data.result;
   } catch (error) {
     console.error(error);
+    throw error;
+  }
+}
+
+export async function updatePaymentQuerie(data: Payment) {
+  try {
+    const response = await api.patch(`/payments/${data.id}`, data);
+    return response.data.result;
+  } catch (error) {
     throw error;
   }
 }

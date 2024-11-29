@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/popover';
 
 interface DatePickerProps {
-  value?: string; // Formato YYYY-MM-DD
+  value?: string;
   onChange?: (date: string) => void;
   className?: string;
   disabled?: boolean;
@@ -27,12 +27,11 @@ export function DatePicker({
   // Converte string YYYY-MM-DD para Date
   const getDateFromString = (dateStr: string | undefined): Date | undefined => {
     if (!dateStr) return undefined;
-    try {
-      return parse(dateStr, 'yyyy/MM/dd', new Date());
-    } catch {
-      return undefined;
-    }
+    const parsedDate = parse(dateStr, 'yyyy/MM/dd', new Date());
+    // Verifica se a data é válida antes de retornar
+    return isNaN(parsedDate.getTime()) ? undefined : parsedDate;
   };
+  
 
   // Converte Date para string YYYY-MM-DD
   const getStringFromDate = (date: Date | undefined): string => {
@@ -43,7 +42,7 @@ export function DatePicker({
   // Manipula a mudança de data
   const handleDateChange = (newDate: Date | undefined) => {
     if (onChange) {
-      onChange(newDate ? getStringFromDate(newDate) : '');
+      onChange(newDate ? format(newDate, 'yyyy/MM/dd') : '');
     }
   };
 

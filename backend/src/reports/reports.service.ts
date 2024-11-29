@@ -257,7 +257,6 @@ export class ReportsService {
           cancelados,
         ]);
       }
-      console.log(allData);
 
       return await this.sheetsService.generateSheet(columns, allData);
     } catch (error) {
@@ -381,16 +380,15 @@ export class ReportsService {
       const results = await this.paymentRepository
         .createQueryBuilder('pagamentos')
         .select([
-          'SUM(pagamentos.valor_total) as totalRevenue', // Soma dos valores pagos
-          'COUNT(pagamentos.id) as totalTransactions', // Total de pagamentos realizados
+          'SUM(pagamentos.valor_total) as totalRevenue',
+          'COUNT(pagamentos.id) as totalTransactions',
         ])
-        .where('pagamentos.status = :status', { status: 'pago' }) // Apenas pagamentos com status "pago"
+        .where('pagamentos.status = :status', { status: 'pago' })
         .getRawOne();
 
-      // Retorna o faturamento formatado
       return {
-        totalRevenue: parseFloat(results.totalRevenue || 0), // Total do faturamento
-        totalTransactions: parseInt(results.totalTransactions || 0, 10), // Total de transações
+        totalRevenue: parseFloat(results.totalRevenue || 0),
+        totalTransactions: parseInt(results.totalTransactions || 0, 10),
       };
     } catch (error) {
       throw new Error('Erro ao buscar o faturamento: ' + error.message);
@@ -399,26 +397,22 @@ export class ReportsService {
 
   async getMonthlyRevenueReport() {
     try {
-      // Busca a data do primeiro e do último pagamento
       const { firstDate, lastDate } = await this.paymentRepository
         .createQueryBuilder('pagamentos')
         .select([
-          'MIN(pagamentos.data_pagamento) as firstDate', // Data do primeiro pagamento
-          'MAX(pagamentos.data_pagamento) as lastDate', // Data do último pagamento
+          'MIN(pagamentos.data_pagamento) as firstDate',
+          'MAX(pagamentos.data_pagamento) as lastDate',
         ])
-        .where('pagamentos.status = :status', { status: 'pago' }) // Apenas pagamentos com status "pago"
+        .where('pagamentos.status = :status', { status: 'pago' })
         .getRawOne();
 
       if (!firstDate || !lastDate) {
-        // Retorna um array vazio se não houver pagamentos
         return [];
       }
 
-      // Converte as datas para objetos Date
       const start = startOfMonth(new Date(firstDate));
       const end = endOfMonth(new Date(lastDate));
 
-      // Gera todos os meses no intervalo
       const allMonths = [];
       let current = start;
 
@@ -427,20 +421,18 @@ export class ReportsService {
         current = addMonths(current, 1);
       }
 
-      // Busca o faturamento agrupado por mês
       const results = await this.paymentRepository
         .createQueryBuilder('pagamentos')
         .select([
-          'DATE_FORMAT(pagamentos.data_pagamento, "%Y-%m") as month', // Ano e mês do pagamento
-          'SUM(pagamentos.valor_total) as totalRevenue', // Soma do valor total dos pagamentos
-          'COUNT(pagamentos.id) as totalTransactions', // Total de transações realizadas
+          'DATE_FORMAT(pagamentos.data_pagamento, "%Y-%m") as month',
+          'SUM(pagamentos.valor_total) as totalRevenue',
+          'COUNT(pagamentos.id) as totalTransactions',
         ])
-        .where('pagamentos.status = :status', { status: 'pago' }) // Apenas pagamentos com status "pago"
-        .groupBy('DATE_FORMAT(pagamentos.data_pagamento, "%Y-%m")') // Agrupa por ano e mês
-        .orderBy('month', 'ASC') // Ordena os resultados por mês (crescente)
+        .where('pagamentos.status = :status', { status: 'pago' })
+        .groupBy('DATE_FORMAT(pagamentos.data_pagamento, "%Y-%m")')
+        .orderBy('month', 'ASC')
         .getRawMany();
 
-      // Converte os resultados para um mapa
       const revenueMap = new Map(
         results.map((item) => [
           item.month,
@@ -451,7 +443,6 @@ export class ReportsService {
         ]),
       );
 
-      // Monta o resultado final, preenchendo meses faltantes com zero
       const finalResults = allMonths.map((month) => ({
         month,
         totalRevenue: revenueMap.get(month)?.totalRevenue || 0,
@@ -466,21 +457,16 @@ export class ReportsService {
 
   async getServicesByStatusReport() {
     try {
-      // Busca os dados agrupados por status dos serviços
       const results = await this.agendaRepository
         .createQueryBuilder('agenda')
-        .select([
-          'agenda.status as status', // Status do serviço
-          'COUNT(*) as total', // Contagem de serviços por status
-        ])
-        .groupBy('agenda.status') // Agrupa pelos diferentes status
-        .orderBy('total', 'DESC') // Ordena por quantidade de serviços (do maior para o menor)
+        .select(['agenda.status as status', 'COUNT(*) as total'])
+        .groupBy('agenda.status')
+        .orderBy('total', 'DESC')
         .getRawMany();
 
-      // Formata os resultados para o formato que será usado no gráfico
       return results.map((item) => ({
         status: item.status,
-        total: parseInt(item.total, 10), // Quantidade de serviços por status
+        total: parseInt(item.total, 10),
       }));
     } catch (error) {
       throw new Error(

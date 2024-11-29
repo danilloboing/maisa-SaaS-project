@@ -8,6 +8,7 @@ export type AgendaContextValues = {
     inactiveAgenda: (id: number) => void;
     updateAgenda: (data: any) => void;
     getAgenda: () => void;
+    updatePayment: (data: Payment) => void;
 }
 
 export type AgendaType = {
@@ -22,7 +23,17 @@ export type AgendaType = {
     id_pagamento: number;
     servico: ServiceType;
     customer: CustomerType;
-    pagamento: any;
+    pagamento: Payment;
+}
+
+export type Payment = {
+    id: number;
+    data_pagamento: string;
+    percent_desconto: number;
+    valor: number;
+    status: string;
+    valor_total: number;
+    valor_desconto: number;
 }
 
 export type CreateAgendaForm = {
@@ -42,4 +53,5 @@ export type UpdateAgendaForm = Partial<CreateAgendaForm> & { id: number; }
 export type AgendaColumnsProps = {
     onEdit: (value: AgendaType) => void,
     onDelete: (value: AgendaType) => void,
+    onEditPaymentStatus: (value: Payment) => void,
 }

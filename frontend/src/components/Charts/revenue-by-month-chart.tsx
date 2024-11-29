@@ -20,6 +20,36 @@ import {
 import { RevenueByMonthData } from "@/types/components";
 
 export function RevenueByMonthChart({ data }: { data: RevenueByMonthData[] }) {
+  // Tooltip personalizado
+  const CustomTooltip = ({
+    active,
+    payload,
+  }: {
+    active?: boolean;
+    payload?: any[];
+  }) => {
+    if (active && payload && payload.length) {
+      const { month, totalRevenue } = payload[0].payload;
+      const formattedRevenue = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+      }).format(totalRevenue);
+
+      return (
+        <div className="bg-white p-3 rounded shadow-md">
+          <p className="text-sm font-bold text-gray-800">{month}</p>
+          <p className="text-sm text-gray-700">
+            Faturamento:{" "}
+            <span className="font-semibold text-gray-900">
+              {formattedRevenue}
+            </span>
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
@@ -45,16 +75,9 @@ export function RevenueByMonthChart({ data }: { data: RevenueByMonthData[] }) {
               }
             />
             {/* Y-Axis for Revenue */}
-            <YAxis />
+            <YAxis tickFormatter={(value) => `$${value}`} />
             {/* Tooltip for details */}
-            <Tooltip
-              formatter={(value: number) =>
-                new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                }).format(value)
-              }
-            />
+            <Tooltip content={<CustomTooltip />} />
             {/* Area definition */}
             <Area
               type="monotone"

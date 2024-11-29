@@ -1,6 +1,6 @@
 import { useToast } from '@/hooks';
-import { createAgendaQuerie, getAgendaQuerie, inactiveAgendaQuerie, updateAgendaQuerie } from '@/queries/agenda';
-import { AgendaContextValues, AgendaType, CreateAgendaForm, UpdateAgendaForm } from '@/types/agenda';
+import { createAgendaQuerie, getAgendaQuerie, inactiveAgendaQuerie, updateAgendaQuerie, updatePaymentQuerie } from '@/queries/agenda';
+import { AgendaContextValues, AgendaType, CreateAgendaForm, Payment, UpdateAgendaForm } from '@/types/agenda';
 import { ContextProps } from '@/types/context';
 import { createContext, useState } from 'react';
 
@@ -63,6 +63,19 @@ export const AgendaContextProvider = ({ children }: ContextProps) => {
     }
   };
 
+  const updatePayment = async (data: Payment) => {
+    try {
+      setIsLoading(true);
+      await updatePaymentQuerie(data);
+      successToast('Pagamento atualizado com sucesso');
+      getAgenda();
+    } catch (error) {
+      errorToast('Erro ao atualizar pagamento');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <AgendaContext.Provider
       value={{
@@ -72,6 +85,7 @@ export const AgendaContextProvider = ({ children }: ContextProps) => {
         inactiveAgenda,
         updateAgenda,
         getAgenda,
+        updatePayment
       }}
     >
       {children}

@@ -9,3 +9,16 @@ export function formatSelectInput(data: any[]): { id: string; name: string }[] {
 
   return [];
 }
+
+export function formatCurrency(value: string) {
+  if (!value || value === "0.0") return "";
+
+  const numericValue = value.replace(/[^\d]/g, "");
+
+  const formattedValue = (+numericValue).toLocaleString("pt-br", {
+    style: "currency",
+    currency: "BRL",
+  });
+
+  return formattedValue;
+}

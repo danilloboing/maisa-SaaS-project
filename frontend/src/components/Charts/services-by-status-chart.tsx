@@ -18,6 +18,35 @@ const colors = [
 ];
 
 export function ServicesByStatusChart({ data }: { data: ServiceStatusData[] }) {
+  // Tooltip personalizado
+  const CustomTooltip = ({
+    active,
+    payload,
+  }: {
+    active?: boolean;
+    payload?: any[];
+  }) => {
+    if (active && payload && payload.length) {
+      const total = data.reduce((sum, entry) => sum + entry.total, 0);
+      const { name, value } = payload[0];
+      const percentage = ((value / total) * 100).toFixed(2);
+
+      return (
+        <div className="bg-white p-3 rounded shadow-md">
+          <p className="text-sm font-bold text-gray-800">{name}</p>
+          <p className="text-sm text-gray-700">
+            Total: <span className="font-semibold text-gray-900">{value}</span>
+          </p>
+          <p className="text-sm text-gray-700">
+            Porcentagem:{" "}
+            <span className="font-semibold text-gray-900">{percentage}%</span>
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
@@ -44,8 +73,8 @@ export function ServicesByStatusChart({ data }: { data: ServiceStatusData[] }) {
                 />
               ))}
             </Pie>
-            {/* Tooltip for additional info */}
-            <Tooltip />
+            {/* Tooltip with custom implementation */}
+            <Tooltip content={<CustomTooltip />} />
           </PieChart>
         </ResponsiveContainer>
       </CardContent>
